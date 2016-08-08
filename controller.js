@@ -18,19 +18,18 @@
      *
      * The controller hold every relevant actions. The internal dispatcher dispatchs a route from
      * route parts without the parameters in the url. The dispatcher is looking for a method matching
-     * to the route parts with the suffix "Action" during the search. The parts will be reduced from
+     * to the route parts with the suffix (this.actionMethodSuffix) during the search. The parts will be reduced from
      * right to left. All parts of the route parts, which are not used, will be shift to the parameters
-     * for the action method. If no action method can be found with url parts,
-     * the action "indexAction" from "defaultAction" property will be called
+     * for the action method.
      *
-     * @example Controller has the action "bundleEditAction".
+     * @example Controller has the action "bundleEdit".
      *            the route is "bundle/edit/nuff/:id"
      *            the url is "bundle/edit/nuff/10"
      *            the url parts are [bundle, edit, nuff]
      *            the parameters are [10]
      *            the controller tests:
-     *                1. bundleEditNuffAction -> failed -> adding "nuff" to parameters
-     *                2. bundleEditAction -> found -> calling "bundleEditAction" with ("nuff", 10)
+     *                1. bundleEditNuff -> failed -> adding "nuff" to parameters
+     *                2. bundleEdit -> found -> calling "bundleEdit" with ("nuff", 10)
      *
      * @param {Object} options
      * @returns {Controller}
@@ -57,22 +56,11 @@
         },
 
         /**
+         * defines the suffix for action methods
          * @var {String}
          */
-        defaultAction: {
-            value: 'index',
-            enumerable: true,
-            configurable: true,
-            writable: true
-        },
-
-        /**
-         * start for the route parts at index
-         *
-         * @var {Number}
-         */
-        routePartsStartsAtIndex: {
-            value: 0,
+        actionMethodSuffix:  {
+            value: '',
             enumerable: true,
             configurable: true,
             writable: true
@@ -118,11 +106,6 @@
             return parameter;
         });
 
-        // not starting at index 0?
-        if (this.routePartsStartsAtIndex != 0) {
-            routeParts = routeParts.slice(this.routePartsStartsAtIndex);
-        }
-
         // camel case the parts
         var parts = lodash.map(routeParts, function (routePart, index) {
             // the first is lowercase
@@ -138,7 +121,7 @@
         var position            = parts.length;
         var listOfTestedMethods = [];
         while ((this[actionMethod] instanceof Function) === false && position > 0) {
-            actionMethod = parts.slice(0, position).join('') + 'Action';
+            actionMethod = parts.slice(0, position).join('') + this.actionMethodSuffix;
             listOfTestedMethods.push(actionMethod);
             position--;
         }
@@ -152,12 +135,7 @@
         // append the values of routeparts to parameters which not in actionMethod
         parameters = routeParts.slice(position + 1).concat(parameters);
 
-        // default action
-        if ((this.defaultAction !== undefined || this.defaultAction !== null) && (actionMethod === undefined || (this[actionMethod] instanceof Function) === false)) {
-            actionMethod = this.defaultAction + 'Action';
-            console.info('route "' + route.name + '" (url://' + route.route + ') as no action method ("' + listOfTestedMethods.join('", "') + '"). Using default action method "' + actionMethod + '".');
-        }
-
+        // action method does not exists
         if ((this[actionMethod] instanceof Function) === false) {
             throw new Error('Action method "' + actionMethod + '" can not be called on controller for route "' + route.name + '" (url://' + route.route + ').');
         }
