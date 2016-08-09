@@ -46,6 +46,17 @@
     // prototyping
     Controller.prototype = Object.create(BackboneEvents, {
         /**
+         * defines the suffix for action methods
+         * @var {String}
+         */
+        actionMethodSuffix:  {
+            value: '',
+            enumerable: true,
+            configurable: true,
+            writable: true
+        },
+
+        /**
          * @var {String}
          */
         cid: {
@@ -56,11 +67,11 @@
         },
 
         /**
-         * defines the suffix for action methods
          * @var {String}
          */
-        actionMethodSuffix:  {
-            value: '',
+        defaultAction:
+        {
+            value: 'index',
             enumerable: true,
             configurable: true,
             writable: true
@@ -134,6 +145,13 @@
 
         // append the values of routeparts to parameters which not in actionMethod
         parameters = routeParts.slice(position + 1).concat(parameters);
+
+        // default action
+        if ((this.defaultAction !== undefined || this.defaultAction !== null) && (actionMethod === undefined || (this[actionMethod] instanceof Function) === false))
+        {
+            actionMethod = this.defaultAction + this.actionMethodSuffix;
+            console.info('route "' + route.name + '" (url://' + route.route + ') as no action method ("' + listOfTestedMethods.join('", "') + '"). Using default action method "' + actionMethod + '".');
+        }
 
         // action method does not exists
         if ((this[actionMethod] instanceof Function) === false) {
