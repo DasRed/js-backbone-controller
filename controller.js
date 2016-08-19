@@ -49,7 +49,7 @@
          * defines the suffix for action methods
          * @var {String}
          */
-        actionMethodSuffix:  {
+        actionMethodSuffix: {
             value: '',
             enumerable: true,
             configurable: true,
@@ -69,8 +69,7 @@
         /**
          * @var {String}
          */
-        defaultAction:
-        {
+        defaultAction: {
             value: 'index',
             enumerable: true,
             configurable: true,
@@ -104,9 +103,42 @@
      * @see for the routeParts array see forge/backbone/router.js
      */
     Controller.prototype.dispatch = function (config, route, routeParts) {
-        // get all additional parameters
-        var parameters = Array.prototype.slice.call(arguments, 3);
+        var actionMethodAndParameters = this.findActionMethodAndParameters(route, routeParts, Array.prototype.slice.call(arguments, 3));
 
+        // auto view remove?
+        this.removeView(config, route);
+
+        // create a hash for actionMethod and parameters
+        var hash = actionMethodAndParameters.method + '/' + actionMethodAndParameters.parameters.join('/');
+
+        console.debug('dispatching the route "' + route.name + '" (url://' + route.route + ') to method "' + actionMethodAndParameters.method + '(' + actionMethodAndParameters.parameters.join(', ') + ')".');
+
+        // call action and retrieve view instance
+        var view = this[actionMethodAndParameters.method].apply(this, actionMethodAndParameters.parameters);
+
+        if (view === undefined || view === null) {
+            return this;
+        }
+
+        if ((view instanceof BackboneView) === false) {
+            throw new Error('Action method "' + actionMethodAndParameters.method + '" must return a instance of BackboneView!');
+        }
+
+        // store current view
+        this.view = view;
+
+        return this;
+    };
+
+    /**
+     * find the action method an the parameters
+     *
+     * @param {Object} route
+     * @param {Array} routeParts
+     * @param {Array} parameters additional parameters
+     * @returns {Object} with "method" & "parameters"
+     */
+    Controller.prototype.findActionMethodAndParameters = function (route, routeParts, parameters) {
         // convert to correct type
         parameters = lodash.map(parameters, function (parameter) {
             var asNumber = Number(parameter);
@@ -147,8 +179,7 @@
         parameters = routeParts.slice(position + 1).concat(parameters);
 
         // default action
-        if ((this.defaultAction !== undefined || this.defaultAction !== null) && (actionMethod === undefined || (this[actionMethod] instanceof Function) === false))
-        {
+        if ((this.defaultAction !== undefined || this.defaultAction !== null) && (actionMethod === undefined || (this[actionMethod] instanceof Function) === false)) {
             actionMethod = this.defaultAction + this.actionMethodSuffix;
             console.info('route "' + route.name + '" (url://' + route.route + ') as no action method ("' + listOfTestedMethods.join('", "') + '"). Using default action method "' + actionMethod + '".');
         }
@@ -158,29 +189,10 @@
             throw new Error('Action method "' + actionMethod + '" can not be called on controller for route "' + route.name + '" (url://' + route.route + ').');
         }
 
-        // auto view remove?
-        this.removeView(config, route);
-
-        // create a hash for actionMethod and parameters
-        var hash = actionMethod + '/' + parameters.join('/');
-
-        console.debug('dispatching the route "' + route.name + '" (url://' + route.route + ') to method "' + actionMethod + '(' + parameters.join(', ') + ')".');
-
-        // call action and retrieve view instance
-        var view = this[actionMethod].apply(this, parameters);
-
-        if (view === undefined || view === null) {
-            return this;
-        }
-
-        if ((view instanceof BackboneView) === false) {
-            throw new Error('Action method "' + actionMethod + '" must return a instance of BackboneView!');
-        }
-
-        // store current view
-        this.view = view;
-
-        return this;
+        return {
+            method: actionMethod,
+            parameters: parameters
+        };
     };
 
     /**
