@@ -96,20 +96,17 @@
      * @param {Object} config
      * @param {Object} route
      * @param {Array} routeParts
-     * @param {*} ... additional parameters
+     * @param {...*} [args] additional parameters
      * @returns {Controller}
      * @see for the config object see forge/backbone/router.js
      * @see for the route object see forge/backbone/router.js
      * @see for the routeParts array see forge/backbone/router.js
      */
-    Controller.prototype.dispatch = function (config, route, routeParts) {
+    Controller.prototype.dispatch = function (config, route, routeParts, args) {
         var actionMethodAndParameters = this.findActionMethodAndParameters(route, routeParts, Array.prototype.slice.call(arguments, 3));
 
         // auto view remove?
         this.removeView(config, route);
-
-        // create a hash for actionMethod and parameters
-        var hash = actionMethodAndParameters.method + '/' + actionMethodAndParameters.parameters.join('/');
 
         console.debug('dispatching the route "' + route.name + '" (url://' + route.route + ') to method "' + actionMethodAndParameters.method + '(' + actionMethodAndParameters.parameters.join(', ') + ')".');
 
