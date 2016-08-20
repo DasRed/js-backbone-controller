@@ -103,8 +103,26 @@
      * @see for the routeParts array see forge/backbone/router.js
      */
     Controller.prototype.dispatch = function (config, route, routeParts, args) {
-        var actionMethodAndParameters = this.findActionMethodAndParameters(route, routeParts, Array.prototype.slice.call(arguments, 3));
+        return this.callActionMethod(
+            config,
+            route,
+            this.findActionMethodAndParameters(
+                route,
+                routeParts,
+                Array.prototype.slice.call(arguments, 3)
+            )
+        );
+    };
 
+    /**
+     * call the acton method
+     *
+     * @param {Object} config
+     * @param {Object} route
+     * @param {Object} actionMethodAndParameters
+     * @return {Controller}
+     */
+    Controller.prototype.callActionMethod = function (config, route, actionMethodAndParameters) {
         // auto view remove?
         this.removeView(config, route);
 
