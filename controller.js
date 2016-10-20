@@ -31,7 +31,7 @@
      *                1. bundleEditNuff -> failed -> adding "nuff" to parameters
      *                2. bundleEdit -> found -> calling "bundleEdit" with ("nuff", 10)
      *
-     * @param {Object} options
+     * @param {Object} [options]
      * @returns {Controller}
      */
     function Controller(options) {
@@ -120,6 +120,8 @@
      * @param {Object} config
      * @param {Object} route
      * @param {Object} actionMethodAndParameters
+     * @param {String} actionMethodAndParameters.method
+     * @param {Array} actionMethodAndParameters.parameters
      * @return {Controller}
      */
     Controller.prototype.callActionMethod = function (config, route, actionMethodAndParameters) {
@@ -149,6 +151,8 @@
      * find the action method an the parameters
      *
      * @param {Object} route
+     * @param {String} route.name
+     * @param {String} route.route
      * @param {Array} routeParts
      * @param {Array} parameters additional parameters
      * @returns {Object} with "method" & "parameters"
@@ -213,7 +217,7 @@
     /**
      * init
      *
-     * @param {Object} options
+     * @param {Object} [options]
      * @returns {Controller}
      */
     Controller.prototype.initialize = function (options) {
