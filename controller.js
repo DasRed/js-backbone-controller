@@ -7,10 +7,10 @@
         });
 
     } else if (typeof exports !== 'undefined') {
-        root.Backbone.Controller = factory(root.lodash, root.Backbone.Events, root.Backbone.View, root.Backbone.compatibility);
+        root.Backbone.Controller = factory(root.lodash || root._, root.Backbone.Events, root.Backbone.View, root.Backbone.compatibility);
 
     } else {
-        root.Backbone.Controller = factory(root.lodash, root.Backbone.Events, root.Backbone.View, root.Backbone.compatibility);
+        root.Backbone.Controller = factory(root.lodash || root._, root.Backbone.Events, root.Backbone.View, root.Backbone.compatibility);
     }
 }(this, function (lodash, BackboneEvents, BackboneView, compatibility) {
     /**
