@@ -4,6 +4,7 @@ This will be add controller to backbone.
 ## Install
 ```
 bower install backbone-controller --save
+npm install js-backbone-controller --save
 ```
 
 # How To
